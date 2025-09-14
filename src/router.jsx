@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   createRouter,
   createRootRoute,
@@ -6,8 +5,8 @@ import {
   RouterProvider,
   Outlet,
 } from '@tanstack/react-router';
-import LoginPage from './pages/LoginPage';
-
+import LobbyPage from './Pages/LobbyPage';
+import LoginPage from './Login/Pages/LoginPage';
 
 /* ----- Rutas ----- */
 const rootRoute = createRootRoute({
@@ -17,13 +16,19 @@ const rootRoute = createRootRoute({
 // Ruta pública: /login
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/login',
+  path: '/',
   component: LoginPage,
 });
 
+const lobbyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/lobby',
+  component: LobbyPage,
+});
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
+  lobbyRoute
 ]);
 
 export const router = createRouter({ routeTree });
