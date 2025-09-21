@@ -14,7 +14,7 @@
     "@tanstack/react-router": "^1.131.35",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tsparticles": "^3.9.1",
