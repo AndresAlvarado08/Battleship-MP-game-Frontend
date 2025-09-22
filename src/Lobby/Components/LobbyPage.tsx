@@ -22,6 +22,7 @@ export default function Lobby() {
   const [joinCode, setJoinCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  /*
   // Si está cargando la autenticación, mostrar loading
   if (isAuthLoading) {
     return (
@@ -43,6 +44,7 @@ export default function Lobby() {
   if (!isAuthenticated) {
     return null;
   }
+    */
 
   const handleCreateSala = async () => {
     try {
@@ -75,48 +77,69 @@ export default function Lobby() {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-950 overflow-hidden">
+    <div className="lobby">
       {/* Partículas de fondo */}
       <ParticlesBackground />
       
       {/* Radar centrado */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="radar-wrap">
         <RadarBackground />
       </div>
 
       {/* Panel central */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6">
+      <div className="panel">
         
         {/* Header */}
-        <div className="text-center mb-8 relative">
+        <div className="header" style={{ position: 'relative' }}>
           <button 
             onClick={logout}
-            className="absolute top-0 right-0 px-4 py-2 bg-red-600/60 hover:bg-red-500/80 text-white rounded-lg transition-all duration-200 font-['Russo_One'] text-sm"
+            className="btn sm secondary"
+            style={{ 
+              position: 'absolute', 
+              top: '0', 
+              right: '0',
+              background: 'rgba(185, 28, 28, 0.8)',
+              color: '#fff',
+              width: 'auto'
+            }}
           >
             Cerrar Sesión
           </button>
-          <h1 className="text-5xl font-extrabold text-sky-400 mb-4 tracking-widest uppercase font-['Russo_One']">
-            BATTLESHIP LOBBY
-          </h1>
-          <p className="text-xl text-sky-300 font-['Russo_One']">
-            Prepárate para la batalla naval
-          </p>
+          <h1>BATTLESHIP LOBBY</h1>
+          <p>Prepárate para la batalla naval</p>
         </div>
 
         {/* Error Message */}
         {errorMessage && (
-          <div className="mb-6 p-4 bg-red-900/50 border border-red-500 rounded-xl text-red-200 text-center backdrop-blur-sm">
+          <div style={{ 
+            margin: '16px 0',
+            padding: '16px',
+            background: 'rgba(127, 29, 29, 0.5)',
+            border: '1px solid rgba(239, 68, 68, 1)',
+            borderRadius: '12px',
+            color: '#fecaca',
+            textAlign: 'center'
+          }}>
             {errorMessage}
           </div>
         )}
 
         {/* Mensaje de no autenticado */}
         {!isAuthenticated && (
-          <div className="mb-6 p-4 bg-yellow-900/50 border border-yellow-500 rounded-xl text-yellow-200 text-center backdrop-blur-sm">
+          <div style={{ 
+            margin: '16px 0',
+            padding: '16px',
+            background: 'rgba(113, 63, 18, 0.5)',
+            border: '1px solid rgba(245, 158, 11, 1)',
+            borderRadius: '12px',
+            color: '#fed7aa',
+            textAlign: 'center'
+          }}>
             No estás autenticado. Por favor, inicia sesión nuevamente.
             <button 
-              onClick={() => navigate({ to: '/login' })}
-              className="ml-2 px-3 py-1 bg-yellow-600 hover:bg-yellow-500 rounded text-white text-sm"
+              onClick={() => navigate({ to: '/' })}
+              className="btn sm primary"
+              style={{ marginLeft: '8px', width: 'auto' }}
             >
               Ir al Login
             </button>
@@ -124,115 +147,106 @@ export default function Lobby() {
         )}
 
         {/* Cards de acciones */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-4xl mb-8">
+        <div className="actions">
           
           {/* Card Crear Sala */}
-          <div className="bg-slate-900/80 backdrop-blur-md border border-sky-700 rounded-2xl p-8 shadow-2xl">
-            <h3 className="text-2xl font-extrabold text-sky-400 text-center mb-6 tracking-widest uppercase font-['Russo_One']">
-              CREAR SALA
-            </h3>
-            <p className="text-sky-300 text-center mb-4 font-['Russo_One']">
+          <div className="card">
+            <h3>CREAR SALA</h3>
+            <div className="sub">
               El servidor creará automáticamente una nueva sala
-            </p>
-            <div className="flex justify-center">
-              <button 
-                className="w-full text-xl font-extrabold text-sky-100 bg-gradient-to-r from-sky-600/60 via-sky-500/60 to-sky-400/60 hover:from-sky-400/80 hover:to-sky-600/80 shadow-lg hover:shadow-sky-400/40 py-4 px-8 rounded-xl transition-all duration-200 outline-none ring-1 ring-sky-700 hover:ring-2 hover:ring-sky-300 border-2 border-black disabled:opacity-50 font-['Russo_One'] disabled:cursor-not-allowed"
-                onClick={handleCreateSala}
-                disabled={isCreatingSala}
-              >
-                {isCreatingSala ? 'CREANDO SALA...' : 'CREAR SALA'}
-              </button>
             </div>
+            <button 
+              className="btn primary"
+              onClick={handleCreateSala}
+              disabled={isCreatingSala}
+            >
+              {isCreatingSala ? 'CREANDO SALA...' : 'CREAR SALA'}
+            </button>
           </div>
 
           {/* Card Unirse a Sala */}
-          <div className="bg-slate-900/80 backdrop-blur-md border border-sky-700 rounded-2xl p-8 shadow-2xl">
-            <h3 className="text-2xl font-extrabold text-sky-400 text-center mb-6 tracking-widest uppercase font-['Russo_One']">
-              UNIRSE A SALA
-            </h3>
-            <p className="text-sky-300 text-center mb-4 font-['Russo_One']">
+          <div className="card">
+            <h3>UNIRSE A SALA</h3>
+            <div className="sub">
               Ingresa el código de la sala
-            </p>
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                placeholder="Ej: ABC123"
-                className="w-full p-4 rounded-xl bg-slate-800/40 text-white border border-sky-700 shadow-md focus:border-sky-400 focus:ring-2 focus:ring-sky-500 outline-none text-lg text-center font-['Russo_One'] transition-all duration-200 placeholder-slate-400"
-                maxLength={6}
-              />
-              <button 
-                className="w-full text-xl font-extrabold text-sky-100 bg-gradient-to-r from-orange-600/60 via-orange-500/60 to-orange-400/60 hover:from-orange-400/80 hover:to-orange-600/80 shadow-lg hover:shadow-orange-400/40 py-4 px-8 rounded-xl transition-all duration-200 outline-none ring-1 ring-orange-700 hover:ring-2 hover:ring-orange-300 border-2 border-black disabled:opacity-50 font-['Russo_One'] disabled:cursor-not-allowed"
-                onClick={() => handleJoinSala()}
-                disabled={isJoiningSala || !joinCode.trim()}
-              >
-                {isJoiningSala ? 'UNIÉNDOSE...' : 'UNIRSE A SALA'}
-              </button>
             </div>
+            <input
+              type="text"
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+              placeholder="Ej: ABC123"
+              maxLength={6}
+            />
+            <button 
+              className="btn secondary"
+              onClick={() => handleJoinSala()}
+              disabled={isJoiningSala || !joinCode.trim()}
+            >
+              {isJoiningSala ? 'UNIÉNDOSE...' : 'UNIRSE A SALA'}
+            </button>
           </div>
         </div>
 
         {/* Lista de Salas Disponibles */}
-        <div className="w-full max-w-6xl">
-          <div className="bg-slate-900/80 backdrop-blur-md border border-sky-700 rounded-2xl p-8 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-extrabold text-sky-400 tracking-widest uppercase font-['Russo_One']">
-                SALAS DISPONIBLES
-              </h3>
+        <div className="rooms">
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3>SALAS DISPONIBLES</h3>
               <button 
                 onClick={() => refetchSalas()}
-                className="px-4 py-2 bg-sky-600/60 hover:bg-sky-500/80 text-white rounded-lg transition-all duration-200 font-['Russo_One'] text-sm"
+                className="btn sm primary"
                 disabled={isLoadingSalas}
+                style={{ width: 'auto' }}
               >
                 {isLoadingSalas ? 'Cargando...' : 'Actualizar'}
               </button>
             </div>
             
             {isLoadingSalas ? (
-              <p className="text-sky-300 text-center text-lg font-['Russo_One']">
+              <div className="muted">
                 Buscando salas disponibles...
-              </p>
+              </div>
             ) : salas && salas.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
                 {salas.map((sala) => (
-                  <div key={sala.id} className="bg-slate-800/60 border border-sky-600 rounded-xl p-6 hover:border-sky-400 transition-all duration-200">
-                    <div className="text-center mb-4">
-                      <div className="text-2xl font-bold text-sky-300 font-['Russo_One']">
+                  <li key={sala.id} className="room">
+                    <div>
+                      <div style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px' }}>
                         {sala.codigo}
                       </div>
-                      <div className="text-sm text-sky-400 font-['Russo_One']">
+                      <div style={{ fontSize: '12px', opacity: '0.8' }}>
                         Host: {sala.host}
                       </div>
-                      <div className="text-sm text-sky-400 font-['Russo_One']">
+                      <div style={{ fontSize: '12px', opacity: '0.8' }}>
                         Jugadores: {sala.jugadores.length}/{sala.maxJugadores}
                       </div>
-                      <div className="text-xs text-sky-500 font-['Russo_One'] mt-1">
+                      <div style={{ fontSize: '11px', opacity: '0.7' }}>
                         Estado: {sala.estado.toUpperCase()}
                       </div>
                     </div>
                     <button
-                      className="w-full text-sm font-bold text-white bg-sky-600/80 hover:bg-sky-500 py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-['Russo_One']"
+                      className="btn sm primary"
                       disabled={
                         sala.jugadores.length >= sala.maxJugadores || 
                         sala.estado !== 'esperando' ||
                         isJoiningSala
                       }
                       onClick={() => handleJoinSala(sala.codigo)}
+                      style={{ width: 'auto', minWidth: '80px', fontSize: '12px' }}
                     >
                       {sala.jugadores.length >= sala.maxJugadores 
-                        ? 'SALA LLENA' 
+                        ? 'LLENA' 
                         : sala.estado !== 'esperando'
                         ? 'EN JUEGO'
                         : 'UNIRSE'}
                     </button>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <p className="text-sky-300 text-center text-lg font-['Russo_One']">
+              <div className="muted">
                 No hay salas disponibles. ¡Sé el primero en crear una!
-              </p>
+              </div>
             )}
           </div>
         </div>

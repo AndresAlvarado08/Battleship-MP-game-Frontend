@@ -17,7 +17,7 @@ export const useAuth = () => {
       
       // Si no hay token y estamos en una ruta protegida, redirigir al login
       const currentPath = window.location.pathname;
-      const protectedRoutes = ['/lobby', '/sala'];
+      const protectedRoutes = ['/sala'];
       const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
       
       if (!hasToken && isProtectedRoute) {

@@ -4,8 +4,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useUser } from "../Hooks/userHook";
 import { LoginData, LoginSchema } from "../Schemas/loginSchema";
 import { AxiosError } from 'axios';
-import ParticlesBackground from "./BackgroundParticles";
-import RadarBackground from "./RadarBackground";
+import RadarBackground from "../../Components/UI/RadarBackground";
+import ParticlesBackground from "../../Components/UI/BackgroundParticles";
+import "../../Components/Style/Style.css";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function LoginForm() {
             cookieUtils.debugCookies();
           });
         }, 100);
-        
+
         alert('Inicio de sesión exitoso');
         navigate({ to: "/lobby" });
       } catch (err: unknown) {
@@ -101,217 +102,205 @@ export default function LoginForm() {
   });
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-slate-950 overflow-hidden">
+    <div className="lobby">
       <ParticlesBackground />
 
       {/* Círculo tipo radar en el fondo */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="radar-wrap">
         <RadarBackground />
       </div>
 
-      <div className="relative z-10 bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-sm w-full">
-        <h1 className="text-4xl font-extrabold text-sky-400 text-center tracking-widest uppercase font-['Russo_One']">
-          Battleship
-        </h1>
+      <div className="panel login-panel">
+        <div className="header">
+          <h1>Battleship</h1>
+        </div>
         {!showForm ? (
           <>
-            <p className="text-2xl font-extrabold text-sky-400 text-center tracking-widest uppercase font-['Russo_One'] mt-8">
-              ¡Bienvenido capitán!
-            </p>
-            <div className="flex justify-center gap-4 my-10">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLogin(true);
-                  setShowForm(true);
-                }}
-                className="px-6 py-3 rounded-xl font-bold uppercase transition-all duration-200 border-2 bg-sky-500/80 text-white border-black shadow text-xl"
-              >
-                Iniciar sesión
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLogin(false);
-                  setShowForm(true);
-                }}
-                className="px-6 py-3 rounded-xl font-bold uppercase transition-all duration-200 border-2 bg-slate-800/40 text-sky-400 border-sky-700 text-xl"
-              >
-                Registrarse
-              </button>
+            <div className="header">
+              <p>¡Bienvenido capitán!</p>
+            </div>
+            <div className="actions login-actions">
+              <div className="card">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLogin(true);
+                    setShowForm(true);
+                  }}
+                  className="btn primary"
+                >
+                  Iniciar sesión
+                </button>
+              </div>
+              <div className="card">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLogin(false);
+                    setShowForm(true);
+                  }}
+                  className="btn secondary"
+                >
+                  Registrarse
+                </button>
+              </div>
             </div>
           </>
         ) : (
           <>
-            <div className="flex justify-center gap-4 my-6">
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '24px' }}>
               <button
                 type="button"
                 onClick={() => setIsLogin(true)}
-                className={`px-4 py-2 rounded-xl font-bold uppercase transition-all duration-200 border-2 ${
-                  isLogin
-                    ? "bg-sky-500/80 text-white border-black shadow"
-                    : "bg-slate-800/40 text-sky-400 border-sky-700"
-                }`}
+                className={`btn sm ${isLogin ? 'primary' : 'secondary'}`}
               >
                 Iniciar sesión
               </button>
               <button
                 type="button"
                 onClick={() => setIsLogin(false)}
-                className={`px-4 py-2 rounded-xl font-bold uppercase transition-all duration-200 border-2 ${
-                  !isLogin
-                    ? "bg-sky-500/80 text-white border-black shadow"
-                    : "bg-slate-800/40 text-sky-400 border-sky-700"
-                }`}
+                className={`btn sm ${!isLogin ? 'primary' : 'secondary'}`}
               >
                 Registrarse
               </button>
             </div>
-            <p className="text-2xl font-extrabold text-sky-400 text-center tracking-widest uppercase font-['Russo_One'] mb-6">
-              {isLogin
-                ? "Inicia sesión para comandar tu flota"
-                : "Regístrate para unirte a la batalla"}
-            </p>
+            <div className="header">
+              <p>
+                {isLogin
+                  ? "Inicia sesión para comandar tu flota"
+                  : "Regístrate para unirte a la batalla"}
+              </p>
+            </div>
             {/* Formulario de Login */}
             {isLogin && (
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  loginForm.handleSubmit();
-                }} 
-                className="space-y-6"
-              >
+              <div className="card form-card">
                 {formErrors.general && (
-                  <div className="text-red-400 text-center text-sm">
+                  <div style={{ color: '#fca5a5', textAlign: 'center', fontSize: '14px', marginBottom: '16px' }}>
                     {formErrors.general}
                   </div>
                 )}
+                
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    loginForm.handleSubmit();
+                  }}
+                >
+                  <loginForm.Field name="username">
+                    {(field) => (
+                      <div>
+                        <h3 style={{ marginBottom: '8px' }}>Usuario</h3>
+                        <input
+                          type="text"
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Capitán..."
+                          required
+                        />
+                        {formErrors.username && (
+                          <div style={{ color: '#fca5a5', fontSize: '12px', marginTop: '4px' }}>
+                            {formErrors.username}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </loginForm.Field>
 
-                <loginForm.Field name="username">
-                  {(field) => (
-                    <div className="flex flex-col items-center">
-                      <label className="block mb-2 text-xl font-extrabold text-sky-400 tracking-widest uppercase font-['Russo_One']">
-                        Usuario
-                      </label>
-                      <input
-                        type="text"
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="Capitán..."
-                        className="w-80 max-w-full p-3 rounded-xl bg-slate-800/40 text-white border border-sky-700 shadow-md focus:border-sky-400 focus:ring-2 focus:ring-sky-500 outline-none text-lg text-center font-['Russo_One'] transition-all duration-200"
-                        required
-                      />
-                      {formErrors.username && (
-                        <span className="text-red-400 text-sm mt-1">{formErrors.username}</span>
-                      )}
-                    </div>
-                  )}
-                </loginForm.Field>
+                  <loginForm.Field name="password">
+                    {(field) => (
+                      <div>
+                        <h3 style={{ marginBottom: '8px' }}>Contraseña</h3>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="••••••••"
+                          required
+                        />
+                        {formErrors.password && (
+                          <div style={{ color: '#fca5a5', fontSize: '12px', marginTop: '4px' }}>
+                            {formErrors.password}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </loginForm.Field>
 
-                <loginForm.Field name="password">
-                  {(field) => (
-                    <div className="flex flex-col items-center mt-6">
-                      <label className="block mb-2 text-xl font-extrabold text-sky-400 tracking-widest uppercase font-['Russo_One']">
-                        Contraseña
-                      </label>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-80 max-w-full p-3 rounded-xl bg-slate-800/40 text-white border border-sky-700 shadow-md focus:border-sky-400 focus:ring-2 focus:ring-sky-500 outline-none text-lg text-center font-['Russo_One'] transition-all duration-200"
-                        required
-                      />
-                      {formErrors.password && (
-                        <span className="text-red-400 text-sm mt-1">{formErrors.password}</span>
-                      )}
-                    </div>
-                  )}
-                </loginForm.Field>
-
-                <div className="flex justify-center">
                   <button
                     type="submit"
                     disabled={mutation.isLoggingIn}
-                    className="w-80 max-w-full text-2xl font-extrabold text-sky-100 text-center tracking-widest uppercase font-['Russo_One'] bg-gradient-to-r from-sky-600/60 via-sky-500/60 to-sky-400/60 hover:from-sky-400/80 hover:to-sky-600/80 shadow-lg hover:shadow-sky-400/40 py-3 rounded-xl transition-all duration-200 outline-none ring-1 ring-sky-700 hover:ring-2 hover:ring-sky-300 border-2 border-black disabled:opacity-50"
+                    className="btn primary"
                   >
                     {mutation.isLoggingIn ? 'Conectando...' : 'Entrar al Puente de Mando'}
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             )}
 
             {/* Formulario de Registro */}
             {!isLogin && (
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  registerForm.handleSubmit();
-                }} 
-                className="space-y-6"
-              >
+              <div className="card form-card">
                 {formErrors.general && (
-                  <div className="text-red-400 text-center text-sm">
+                  <div style={{ color: '#fca5a5', textAlign: 'center', fontSize: '14px', marginBottom: '16px' }}>
                     {formErrors.general}
                   </div>
                 )}
+                
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    registerForm.handleSubmit();
+                  }}
+                >
+                  <registerForm.Field name="username">
+                    {(field) => (
+                      <div>
+                        <h3 style={{ marginBottom: '8px' }}>Usuario</h3>
+                        <input
+                          type="text"
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Capitán..."
+                          required
+                        />
+                      </div>
+                    )}
+                  </registerForm.Field>
 
-                <registerForm.Field name="username">
-                  {(field) => (
-                    <div className="flex flex-col items-center">
-                      <label className="block mb-2 text-xl font-extrabold text-sky-400 tracking-widest uppercase font-['Russo_One']">
-                        Usuario
-                      </label>
-                      <input
-                        type="text"
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="Capitán..."
-                        className="w-80 max-w-full p-3 rounded-xl bg-slate-800/40 text-white border border-sky-700 shadow-md focus:border-sky-400 focus:ring-2 focus:ring-sky-500 outline-none text-lg text-center font-['Russo_One'] transition-all duration-200"
-                        required
-                      />
-                    </div>
-                  )}
-                </registerForm.Field>
+                  <registerForm.Field name="password">
+                    {(field) => (
+                      <div>
+                        <h3 style={{ marginBottom: '8px' }}>Contraseña</h3>
+                        <input
+                          type="password"
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="••••••••"
+                          required
+                        />
+                      </div>
+                    )}
+                  </registerForm.Field>
 
-                <registerForm.Field name="password">
-                  {(field) => (
-                    <div className="flex flex-col items-center mt-6">
-                      <label className="block mb-2 text-xl font-extrabold text-sky-400 tracking-widest uppercase font-['Russo_One']">
-                        Contraseña
-                      </label>
-                      <input
-                        type="password"
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-80 max-w-full p-3 rounded-xl bg-slate-800/40 text-white border border-sky-700 shadow-md focus:border-sky-400 focus:ring-2 focus:ring-sky-500 outline-none text-lg text-center font-['Russo_One'] transition-all duration-200"
-                        required
-                      />
-                    </div>
-                  )}
-                </registerForm.Field>
-
-                <div className="flex justify-center">
                   <button
                     type="submit"
                     disabled={mutation.isRegistering}
-                    className="w-80 max-w-full text-2xl font-extrabold text-sky-100 text-center tracking-widest uppercase font-['Russo_One'] bg-gradient-to-r from-sky-600/60 via-sky-500/60 to-sky-400/60 hover:from-sky-400/80 hover:to-sky-600/80 shadow-lg hover:shadow-sky-400/40 py-3 rounded-xl transition-all duration-200 outline-none ring-1 ring-sky-700 hover:ring-2 hover:ring-sky-300 border-2 border-black disabled:opacity-50"
+                    className="btn primary"
                   >
                     {mutation.isRegistering ? 'Registrando...' : 'Registrarse'}
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             )}
           </>
         )}
