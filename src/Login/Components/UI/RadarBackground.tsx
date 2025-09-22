@@ -1,4 +1,6 @@
 // components/ui/RadarBackground.tsx
+import React from "react";
+
 export default function RadarBackground() {
   return (
     <div className="absolute w-[600px] h-[600px] rounded-full border border-sky-600/40 flex items-center justify-center overflow-hidden">

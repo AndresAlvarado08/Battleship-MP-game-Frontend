@@ -5,7 +5,7 @@ import {
   RouterProvider,
   Outlet,
 } from '@tanstack/react-router';
-import LobbyPage from './Pages/LobbyPage';
+import LobbyPage from './Lobby/Pages/LobbyPage';
 import LoginPage from './Login/Pages/LoginPage';
 
 /* ----- Rutas ----- */

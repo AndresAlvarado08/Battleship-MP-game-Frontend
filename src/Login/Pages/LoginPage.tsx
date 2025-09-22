@@ -1,7 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { login, register } from "../../API/APIAuth";  
 import ParticlesBackground from "../Components/UI/BackgroundParticles";
 import RadarBackground from "../Components/UI/RadarBackground";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function LoginPage() {
   const [showForm, setShowForm] = useState(false);
@@ -16,13 +17,14 @@ export default function LoginPage() {
     const audio = new Audio("/sounds/sonar.mp3");
     audio.play();
   };
-
+  const navigate = useNavigate();
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const data = await login(username, password);
       console.log("Login exitoso:", data);
       playSonar();
+      navigate({ to: "/lobby", replace: true }); // <-- redirección
     } catch (error) {
       alert("Usuario o contraseña incorrectos");
       console.error(error);
