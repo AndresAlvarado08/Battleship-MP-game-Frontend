@@ -4,7 +4,7 @@ import { useAuth } from "../../Hooks/UseAuth";
 import { useNavigate } from "@tanstack/react-router";
 import ParticlesBackground from "../../Components/UI/BackgroundParticles";
 import RadarBackground from "../../Components/UI/RadarBackground";
-import "../../Components/Style/Style.css";
+import "../../Components/Style/Login-Lobby-Style.css";
 
 export default function Lobby() {
   const { isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
@@ -26,15 +26,16 @@ export default function Lobby() {
   // Si está cargando la autenticación, mostrar loading
   if (isAuthLoading) {
     return (
-      <div className="relative min-h-screen bg-slate-950 overflow-hidden flex items-center justify-center">
+      <div className="lobby">
         <ParticlesBackground />
-        <div className="relative z-10 text-center">
-          <h1 className="text-4xl font-extrabold text-sky-400 mb-4 tracking-widest uppercase font-['Russo_One']">
-            Cargando...
-          </h1>
-          <p className="text-xl text-sky-300 font-['Russo_One']">
-            Verificando autenticación
-          </p>
+        <div className="radar-wrap">
+          <RadarBackground />
+        </div>
+        <div className="panel" style={{ textAlign: 'center' }}>
+          <div className="header">
+            <h1>Cargando...</h1>
+            <p>Verificando autenticación</p>
+          </div>
         </div>
       </div>
     );
@@ -93,14 +94,13 @@ export default function Lobby() {
         <div className="header" style={{ position: 'relative' }}>
           <button 
             onClick={logout}
-            className="btn sm secondary"
+            className="btn secondary sm"
             style={{ 
               position: 'absolute', 
               top: '0', 
               right: '0',
-              background: 'rgba(185, 28, 28, 0.8)',
-              color: '#fff',
-              width: 'auto'
+              background: 'rgba(185, 28, 28, .90)',
+              color: '#fff'
             }}
           >
             Cerrar Sesión
@@ -111,14 +111,12 @@ export default function Lobby() {
 
         {/* Error Message */}
         {errorMessage && (
-          <div style={{ 
-            margin: '16px 0',
-            padding: '16px',
-            background: 'rgba(127, 29, 29, 0.5)',
-            border: '1px solid rgba(239, 68, 68, 1)',
-            borderRadius: '12px',
-            color: '#fecaca',
-            textAlign: 'center'
+          <div className="card" style={{ 
+            background: 'rgba(127, 29, 29, .60)',
+            borderColor: 'rgba(239, 68, 68, .60)',
+            color: '#fca5a5',
+            textAlign: 'center',
+            marginBottom: '24px'
           }}>
             {errorMessage}
           </div>
@@ -126,20 +124,24 @@ export default function Lobby() {
 
         {/* Mensaje de no autenticado */}
         {!isAuthenticated && (
-          <div style={{ 
-            margin: '16px 0',
-            padding: '16px',
-            background: 'rgba(113, 63, 18, 0.5)',
-            border: '1px solid rgba(245, 158, 11, 1)',
-            borderRadius: '12px',
-            color: '#fed7aa',
-            textAlign: 'center'
+          <div className="card" style={{ 
+            background: 'rgba(133, 77, 14, .60)',
+            borderColor: 'rgba(245, 158, 11, .60)',
+            color: '#fde68a',
+            textAlign: 'center',
+            marginBottom: '24px'
           }}>
             No estás autenticado. Por favor, inicia sesión nuevamente.
             <button 
               onClick={() => navigate({ to: '/' })}
-              className="btn sm primary"
-              style={{ marginLeft: '8px', width: 'auto' }}
+              className="btn sm"
+              style={{ 
+                marginLeft: '8px',
+                background: 'rgba(217, 119, 6, .90)',
+                color: '#fff',
+                display: 'inline-block',
+                width: 'auto'
+              }}
             >
               Ir al Login
             </button>
@@ -181,6 +183,10 @@ export default function Lobby() {
               className="btn secondary"
               onClick={() => handleJoinSala()}
               disabled={isJoiningSala || !joinCode.trim()}
+              style={{ 
+                background: 'rgba(234, 88, 12, .90)',
+                color: '#fff'
+              }}
             >
               {isJoiningSala ? 'UNIÉNDOSE...' : 'UNIRSE A SALA'}
             </button>
@@ -189,66 +195,64 @@ export default function Lobby() {
 
         {/* Lista de Salas Disponibles */}
         <div className="rooms">
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3>SALAS DISPONIBLES</h3>
-              <button 
-                onClick={() => refetchSalas()}
-                className="btn sm primary"
-                disabled={isLoadingSalas}
-                style={{ width: 'auto' }}
-              >
-                {isLoadingSalas ? 'Cargando...' : 'Actualizar'}
-              </button>
-            </div>
-            
-            {isLoadingSalas ? (
-              <div className="muted">
-                Buscando salas disponibles...
-              </div>
-            ) : salas && salas.length > 0 ? (
-              <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
-                {salas.map((sala) => (
-                  <li key={sala.id} className="room">
-                    <div>
-                      <div style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px' }}>
-                        {sala.codigo}
-                      </div>
-                      <div style={{ fontSize: '12px', opacity: '0.8' }}>
-                        Host: {sala.host}
-                      </div>
-                      <div style={{ fontSize: '12px', opacity: '0.8' }}>
-                        Jugadores: {sala.jugadores.length}/{sala.maxJugadores}
-                      </div>
-                      <div style={{ fontSize: '11px', opacity: '0.7' }}>
-                        Estado: {sala.estado.toUpperCase()}
-                      </div>
-                    </div>
-                    <button
-                      className="btn sm primary"
-                      disabled={
-                        sala.jugadores.length >= sala.maxJugadores || 
-                        sala.estado !== 'esperando' ||
-                        isJoiningSala
-                      }
-                      onClick={() => handleJoinSala(sala.codigo)}
-                      style={{ width: 'auto', minWidth: '80px', fontSize: '12px' }}
-                    >
-                      {sala.jugadores.length >= sala.maxJugadores 
-                        ? 'LLENA' 
-                        : sala.estado !== 'esperando'
-                        ? 'EN JUEGO'
-                        : 'UNIRSE'}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="muted">
-                No hay salas disponibles. ¡Sé el primero en crear una!
-              </div>
-            )}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: '20px' 
+          }}>
+            <h3 style={{ margin: '0' }}>SALAS DISPONIBLES</h3>
+            <button 
+              onClick={() => refetchSalas()}
+              className="btn sm primary"
+              disabled={isLoadingSalas}
+              style={{ width: 'auto' }}
+            >
+              {isLoadingSalas ? 'Cargando...' : 'Actualizar'}
+            </button>
           </div>
+          
+          {isLoadingSalas ? (
+            <p className="muted">
+              Buscando salas disponibles...
+            </p>
+          ) : salas && salas.length > 0 ? (
+            <ul>
+              {salas.map((sala) => (
+                <li key={sala.id} className="room">
+                  <div>
+                    <strong>{sala.codigo}</strong>
+                    <div style={{ fontSize: '14px', color: 'rgba(226, 243, 255, .65)' }}>
+                      Host: {sala.host} | Jugadores: {sala.jugadores.length}/{sala.maxJugadores}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'rgba(226, 243, 255, .50)' }}>
+                      Estado: {sala.estado.toUpperCase()}
+                    </div>
+                  </div>
+                  <button
+                    className="btn sm primary"
+                    disabled={
+                      sala.jugadores.length >= sala.maxJugadores || 
+                      sala.estado !== 'esperando' ||
+                      isJoiningSala
+                    }
+                    onClick={() => handleJoinSala(sala.codigo)}
+                    style={{ width: 'auto' }}
+                  >
+                    {sala.jugadores.length >= sala.maxJugadores 
+                      ? 'SALA LLENA' 
+                      : sala.estado !== 'esperando'
+                      ? 'EN JUEGO'
+                      : 'UNIRSE'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">
+              No hay salas disponibles. ¡Sé el primero en crear una!
+            </p>
+          )}
         </div>
       </div>
     </div>

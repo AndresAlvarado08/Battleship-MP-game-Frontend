@@ -6,7 +6,7 @@ import { LoginData, LoginSchema } from "../Schemas/loginSchema";
 import { AxiosError } from 'axios';
 import RadarBackground from "../../Components/UI/RadarBackground";
 import ParticlesBackground from "../../Components/UI/BackgroundParticles";
-import "../../Components/Style/Style.css";
+import "../../Components/Style/Login-Lobby-Style.css";
 
 export default function LoginForm() {
   const navigate = useNavigate();
