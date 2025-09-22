@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useRoomsQuery, useCreateRoom } from "../../Hooks/UseRooms";
 import { useNavigate } from "@tanstack/react-router";
-import ParticlesBackground from "../Components/BackgroundParticles";
-import RadarBackground from "../Components//RadarBackground";
-import "../Style/Lobby.css"; // <-- importa tu CSS
+import ParticlesBackground from "../../Components/UI/BackgroundParticles";
+import RadarBackground from "../../Components/UI/RadarBackground";
+import "../../Components/Style/Style.css"; // <-- importa tu CSS
 
 export default function Lobby() {
   const { data: rooms, isLoading } = useRoomsQuery();
@@ -23,7 +23,9 @@ export default function Lobby() {
   };
 
   return (
+    
     <div className="lobby">
+      <ParticlesBackground />
       {/* Radar centrado */}
       <div className="radar-wrap">
         <div className="radar">

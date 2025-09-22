@@ -40,6 +40,5 @@
 .read-the-docs {
   color: #888;
 }
-@keyframes radar-rotate { from { transform: translate(-50%,-50%) rotate(0deg); }
-                          to   { transform: translate(-50%,-50%) rotate(360deg);} }
-.animate-radar-rotate { animation: radar-rotate 6s linear infinite; }
+
+
