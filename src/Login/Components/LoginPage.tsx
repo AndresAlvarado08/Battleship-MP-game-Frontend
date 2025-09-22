@@ -62,13 +62,9 @@ export default function LoginForm() {
           errorMsg = String(err);
         }
 
-        if (typeof errorMsg === 'string' && errorMsg.includes('deshabilitado')) {
-          alert('El usuario está deshabilitado. Contacta al administrador.');
-        } else {
-          setFormErrors({
-            general: 'Credenciales incorrectas o error en el servidor',
-          });
-        }
+        setFormErrors({
+          general: 'Usuario o contraseña incorrectos',
+        });
       }
     },
   });
@@ -85,7 +81,7 @@ export default function LoginForm() {
           username: value.username,
           password: value.password,
         });
-        alert('Registro exitoso');
+        alert('Usuario registrado exitosamente');
         setIsLogin(true);
       } catch (err: unknown) {
         let errorMsg = '';
@@ -96,7 +92,7 @@ export default function LoginForm() {
         } else {
           errorMsg = String(err);
         }
-        setFormErrors({ general: 'Error al registrar usuario' });
+        setFormErrors({ general: 'Error al registrar el usuario' });
       }
     },
   });
