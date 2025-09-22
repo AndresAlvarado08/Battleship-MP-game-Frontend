@@ -5,8 +5,8 @@ import {
   RouterProvider,
   Outlet,
 } from '@tanstack/react-router';
-import LobbyPage from './Lobby/Pages/LobbyPage';
-import LoginPage from './Login/Pages/LoginPage';
+import LoginPage from './Login/Components/LoginPage';
+import LobbyPage from './Lobby/Components/LobbyPage';
 
 /* ----- Rutas ----- */
 const rootRoute = createRootRoute({
