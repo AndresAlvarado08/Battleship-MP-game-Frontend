@@ -1,50 +1,55 @@
-import { useEffect, useState } from 'react';
-import { cookieUtils } from '../Utils/Cookies';
-import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { validate, getUser, type UserResponse } from "../Auth/Services/authService";
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<UserResponse | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const hasToken = cookieUtils.hasToken();
-      setIsAuthenticated(hasToken);
-      setIsLoading(false);
-      
-      console.log('🔐 Auth Check:', { hasToken, token: cookieUtils.getToken() });
-      
-      // Si no hay token y estamos en una ruta protegida, redirigir al login
-      const currentPath = window.location.pathname;
-      const protectedRoutes = ['/sala'];
-      const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
-      
-      if (!hasToken && isProtectedRoute) {
-        console.log('🚫 No token found, redirecting to login...');
-        navigate({ to: '/' });
+  const checkAuth = useCallback(async () => {
+    try {
+      const v = await validate();
+      if (v.valid) {
+        const u = await getUser();
+        setUser(u);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
       }
-    };
+    } catch {
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     checkAuth();
-    
-    // Re-check cada 30 segundos
-    const interval = setInterval(checkAuth, 30000);
-    
-    return () => clearInterval(interval);
-  }, [navigate]);
+    const id = setInterval(checkAuth, 30_000); // refresco periódico
+    return () => clearInterval(id);
+  }, [checkAuth]);
 
-  const logout = () => {
-    cookieUtils.removeToken();
+  const logout = async () => {
+    try {
+      await fetch("https://localhost:7182/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {}
     setIsAuthenticated(false);
-    navigate({ to: '/' });
-    console.log('🚪 User logged out');
+    setUser(null);
+    navigate({ to: "/" });
   };
 
   return {
     isAuthenticated,
     isLoading,
-    hasToken: cookieUtils.hasToken(),
+    user,              // { username }
+    refreshAuth: checkAuth,
     logout,
   };
 };

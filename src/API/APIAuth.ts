@@ -1,109 +1,57 @@
-import axios from "axios";
-import { cookieUtils } from "../Utils/Cookies";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 const apiAuth = axios.create({
   baseURL: "https://localhost:7182/",
-  headers: { 'Content-Type': 'application/json' },
-  withCredentials: true, // Las cookies se envían automáticamente
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true, // <- envía/recibe cookies automáticamente
 });
 
-// Interceptor para agregar el token a todas las requests
-apiAuth.interceptors.request.use(
-  (config) => {
-    const token = cookieUtils.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    // Debug: Mostrar la URL y si hay token
-    console.log(`🔗 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-      hasToken: !!token,
-      headers: config.headers
-    });
-    
-    return config;
-  },
-  (error) => {
-    console.error('❌ Request interceptor error:', error);
-    return Promise.reject(error);
-  }
-);
+// === Interceptor de respuesta: refresh en 401, reintento UNA vez ===
+let isRefreshing = false;
+let queued: Array<(tokenRefreshed: boolean) => void> = [];
 
-let isRefreshing = false
-let failedQueue: any[] = []
-
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error)
-    } else {
-      prom.resolve(token)
-    }
-  })
-  failedQueue = []
-}
+function queue(cb: (ok: boolean) => void) { queued.push(cb); }
+function flush(ok: boolean) { queued.splice(0).forEach(cb => cb(ok)); }
 
 apiAuth.interceptors.response.use(
-  (response) => {
-    // Debug: Log successful responses
-    console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-      status: response.status,
-      data: response.data
-    });
-    return response;
-  },
-  async error => {
-    const originalRequest = error.config
-    const currentPath = window.location.pathname;
-    const publicRoutes = ['/', '/Login', '/Register'];
+  (r) => r,
+  async (error: AxiosError) => {
+    const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean });
 
-    // Debug: Log error responses
-    console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
-      status: error.response?.status,
-      message: error.response?.data?.message || error.message,
-      hasToken: !!cookieUtils.getToken()
-    });
-
-    // No manejar errores 401 en rutas públicas
-    if (publicRoutes.includes(currentPath)) {
+    // Si no es 401 o ya reintentamos, o es el propio refresh/login/register => falla normal
+    const status = error.response?.status;
+    const url = (original?.url ?? "").toLowerCase();
+    if (status !== 401 || original?._retry || /\/auth\/(login|register|refresh)/.test(url)) {
       return Promise.reject(error);
     }
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes('/auth/refresh')
-    ) {
-      originalRequest._retry = true
+    // Marcar para no buclear
+    original._retry = true;
 
-      if (isRefreshing) {
-        return new Promise(function (resolve, reject) {
-          failedQueue.push({ resolve, reject })
-        })
-          .then(() => apiAuth(originalRequest))
-          .catch(err => Promise.reject(err))
-      }
-
-      isRefreshing = true
-
-      try {
-        // Solo llama al refresh, las cookies se actualizan automáticamente
-        await apiAuth.post('/auth/refresh')
-        processQueue(null)
-        return apiAuth(originalRequest)
-      } catch (refreshError) {
-        processQueue(refreshError, null)
-        cookieUtils.removeToken()
-        window.location.href = '/Login'
-        return Promise.reject(refreshError)
-      } finally {
-        isRefreshing = false
-      }
+    // Evitar paralelismo de refresh
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        queue((ok) => {
+          if (!ok) return reject(error);
+          apiAuth.request(original).then(resolve).catch(reject);
+        });
+      });
     }
 
-    return Promise.reject(error)
+    isRefreshing = true;
+    try {
+      await apiAuth.post("/auth/refresh");        // usa las cookies
+      flush(true);
+      return apiAuth.request(original);           // reintenta
+    } catch (e) {
+      flush(false);
+      // Si el refresh falla, redirigir al login
+      window.location.href = "/";                 // ajusta si tu login está en otra ruta
+      return Promise.reject(e);
+    } finally {
+      isRefreshing = false;
+    }
   }
-)
-
+);
 
 export default apiAuth;
