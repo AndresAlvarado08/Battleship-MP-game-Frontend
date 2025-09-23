@@ -217,7 +217,7 @@ export default function Lobby() {
           ) : salas && salas.length > 0 ? (
             <ul>
               {salas.map((sala) => {
-                const llena = sala.jugadores.length >= sala.maxJugadores;
+                const llena = sala.jugadores.length >= 6;
                 const estadoNormalizado = String(sala.estado ?? "esperando").toLowerCase();
                 const jugando = estadoNormalizado === "en_juego" || estadoNormalizado === "terminada";
                 const disabled = llena || jugando || isJoiningSala || !isAuthenticated;
@@ -227,7 +227,7 @@ export default function Lobby() {
                     <div>
                       <strong>{sala.codigo}</strong>
                       <div style={{ fontSize: "14px", color: "rgba(226, 243, 255, .65)" }}>
-                        Host: {sala.host} | Jugadores: {sala.jugadores.length}/{sala.maxJugadores}
+                        Host: {sala.host} | Jugadores: {sala.jugadores.length}/{6}
                       </div>
                       <div style={{ fontSize: "12px", color: "rgba(226, 243, 255, .50)" }}>
                         Estado: {String(sala.estado).toUpperCase()}

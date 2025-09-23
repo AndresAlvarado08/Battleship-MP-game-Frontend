@@ -1,13 +1,17 @@
 // src/Pages/SalaPage.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useSala } from "../../Sala/Hooks/salaHook";
 import ParticlesBackground from "../../Components/UI/BackgroundParticles";
 import RadarBackground from "../../Components/UI/RadarBackground";
 import "../../Components/Style/Login-Lobby-Style.css";
 
-// Ajusta esta ruta si tu pantalla de colocar barcos vive en otro path
+// Ajusta estas rutas si tu app usa paths distintos
 const SETUP_ROUTE = (codigo: string) => `/battleship/${codigo}/setup`;
+const GAME_ROUTE  = (codigo: string) => `/battleship/${codigo}/play`;
+
+// Fallback mientras el backend esté fijo en 6
+const FALLBACK_MAX = 6;
 
 export default function SalaPage() {
   const navigate = useNavigate();
@@ -29,14 +33,40 @@ export default function SalaPage() {
     return () => clearInterval(id);
   }, [refetch]);
 
-  // Redirige a colocar barcos cuando de verdad esté llena y en pre-partida
+  // Evita navegaciones repetidas durante el polling
+  const lastRouteRef = useRef<string | null>(null);
+  const safeNavigate = (to: string) => {
+    if (lastRouteRef.current === to) return;
+    lastRouteRef.current = to;
+    navigate({ to });
+  };
+
+  // Redirecciones según estado/capacidad
   useEffect(() => {
     if (!sala) return;
-    const max = sala.maxJugadores ?? 2;
-    const llena = sala.jugadores.length >= max;
-    const pre = String(sala.estado ?? "esperando").toLowerCase() === "esperando";
-    if (llena && pre) {
-      navigate({ to: SETUP_ROUTE(sala.codigo) });
+
+    const estadoNorm = String(sala.estado ?? "esperando")
+      .toLowerCase()
+      .replace(/\s+/g, "_"); // "en curso" -> "en_curso"
+
+    const max = typeof sala.maxJugadores === "number" && sala.maxJugadores > 0
+      ? sala.maxJugadores
+      : FALLBACK_MAX;
+
+    const ocupados = Array.isArray(sala.jugadores) ? sala.jugadores.length : 0;
+    const llena = ocupados >= max;
+
+    // 1) Si está esperando y se llenó => setup de barcos
+    if (estadoNorm === "esperando" && llena) {
+      safeNavigate(SETUP_ROUTE(sala.codigo));
+      return;
+    }
+
+    // 2) Si está en curso => pantalla del juego
+    const enCurso = ["en_curso", "en_juego", "jugando", "in_game", "running"].includes(estadoNorm);
+    if (enCurso) {
+      safeNavigate(GAME_ROUTE(sala.codigo));
+      return;
     }
   }, [sala, navigate]);
 
@@ -49,6 +79,14 @@ export default function SalaPage() {
       console.error("Error al salir de la sala:", error);
     }
   };
+
+  const estadoUi =
+    sala
+      ? (String(sala.estado).toLowerCase() === "esperando" ? "PREPARTIDA" : String(sala.estado).toUpperCase())
+      : "Cargando...";
+
+  const maxUi = (sala?.maxJugadores ?? FALLBACK_MAX);
+  const jugadoresUi = Array.isArray(sala?.jugadores) ? sala!.jugadores.length : 0;
 
   return (
     <div className="lobby">
@@ -76,14 +114,7 @@ export default function SalaPage() {
       <div className="panel">
         <div className="header" style={{ position: "relative" }}>
           <h1>CÓDIGO DE SALA: {codigo?.toUpperCase()}</h1>
-          <p>
-            Estado:{" "}
-            {sala
-              ? String(sala.estado).toLowerCase() === "esperando"
-                ? "PREPARTIDA"
-                : String(sala.estado).toUpperCase()
-              : "Cargando..."}
-          </p>
+          <p>Estado: {estadoUi}</p>
           <button
             className="btn sm primary"
             onClick={() => refetch()}
@@ -125,8 +156,7 @@ export default function SalaPage() {
                 {sala.host || "No definido"}
               </div>
               <div>
-                <strong>Jugadores: </strong>{" "}
-                {sala.jugadores.length}/{sala.maxJugadores}
+                <strong>Jugadores: </strong> {jugadoresUi}/{maxUi}
               </div>
             </div>
             
@@ -175,9 +205,15 @@ export default function SalaPage() {
                 color: "#dbeafe",
               }}
             >
-              {sala.jugadores.length < (sala.maxJugadores ?? 2)
-                ? "Esperando jugadores para iniciar (PREPARTIDA)…"
-                : "Sala completa. Enviando a colocar barcos…"}
+              {(() => {
+                const estadoNorm = String(sala.estado ?? "").toLowerCase().replace(/\s+/g, "_");
+                if (estadoNorm === "esperando") {
+                  return jugadoresUi < maxUi
+                    ? "Esperando jugadores para iniciar (PREPARTIDA)…"
+                    : "Sala completa. Enviando a colocar barcos…";
+                }
+                return "La partida está en curso. Redirigiendo al juego…";
+              })()}
             </div>
           </div>
         )}

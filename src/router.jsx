@@ -8,7 +8,8 @@ import {
 import LoginPage from './Login/Components/LoginPage';
 import LobbyPage from './Lobby/Components/LobbyPage';
 import SalaPage from './Sala/Components/SalaPage'; // ← export default
-
+import SetupPage from './Setup/Components/SetupPage'; // ← nueva página
+import GamePage from './GamePage/GamePage'; // ← nueva página
 /* ----- Rutas ----- */
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -35,10 +36,24 @@ const salaRoute = createRoute({
   component: () => <SalaPage />,    // wrapper seguro (evita “.call is not a function”)
 });
 
+const setupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/battleship/$codigo/setup',
+  component: () => <SetupPage />,  // wrapper seguro
+});
+
+const gameRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/battleship/$codigo/play',
+  component: () => <GamePage />,
+});
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   lobbyRoute,
-  salaRoute,                         // ← agrégala aquí
+  salaRoute,  
+  setupRoute, 
+  gameRoute,                      // ← agrégala aquí
 ]);
 
 export const router = createRouter({ routeTree });
