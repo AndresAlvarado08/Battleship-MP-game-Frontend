@@ -218,7 +218,8 @@ export default function Lobby() {
             <ul>
               {salas.map((sala) => {
                 const llena = sala.jugadores.length >= sala.maxJugadores;
-                const jugando = sala.estado !== "esperando";
+                const estadoNormalizado = String(sala.estado ?? "esperando").toLowerCase();
+                const jugando = estadoNormalizado === "en_juego" || estadoNormalizado === "terminada";
                 const disabled = llena || jugando || isJoiningSala || !isAuthenticated;
 
                 return (

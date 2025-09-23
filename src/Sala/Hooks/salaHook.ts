@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createSala, joinSala, getSala, getSalas } from "../Services/salaService";
+import { createSala, joinSala, getSala, getSalas, exitSala } from "../Services/salaService";
 import { useAuth } from "../../Hooks/UseAuth";
 import type { Sala } from "../Models/salaModel";
 
@@ -40,6 +40,13 @@ export const useSala = () => {
     },
   });
 
+    const exitSalaMutation = useMutation({
+      mutationFn: (codigo: string) => exitSala(codigo),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["salas"] });
+      },
+    });
+
   const useSalaById = (codigo: string) =>
     useQuery<Sala>({
       queryKey: ["sala", codigo],
@@ -48,10 +55,12 @@ export const useSala = () => {
       staleTime: 15_000,
     });
 
+
   return {
     salas, isLoadingSalas, isErrorSalas, errorSalas, refetchSalas,
     createSalaMutation, isCreatingSala: createSalaMutation.isPending,
     joinSalaMutation, isJoiningSala: joinSalaMutation.isPending,
+    exitSalaMutation, isExitingSala: exitSalaMutation.isPending,
     useSalaById,
   };
 };

@@ -14,7 +14,7 @@ export default function SalaPage() {
   // Debe coincidir con el path registrado en el router: '/sala/$codigo'
   const { codigo } = useParams({ from: "/sala/$codigo" }) as { codigo: string };
 
-  const { useSalaById } = useSala();
+  const { useSalaById, exitSalaMutation, isExitingSala } = useSala();
   const {
     data: sala,
     isLoading,
@@ -40,6 +40,16 @@ export default function SalaPage() {
     }
   }, [sala, navigate]);
 
+  // Función para salir de la sala
+  const handleExitSala = async () => {
+    try {
+      await exitSalaMutation.mutateAsync(codigo);
+      navigate({ to: "/lobby" });
+    } catch (error) {
+      console.error("Error al salir de la sala:", error);
+    }
+  };
+
   return (
     <div className="lobby">
       <ParticlesBackground />
@@ -47,9 +57,25 @@ export default function SalaPage() {
         <RadarBackground />
       </div>
 
+      {/* Botón para volver al lobby - esquina superior izquierda */}
+      <button
+        className="btn sm secondary"
+        onClick={handleExitSala}
+        disabled={isExitingSala}
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "20px",
+          width: "auto",
+          zIndex: 10
+        }}
+      >
+        {isExitingSala ? "SALIENDO..." : "VOLVER AL LOBBY"}
+      </button>
+
       <div className="panel">
         <div className="header" style={{ position: "relative" }}>
-          <h1>SALA {codigo?.toUpperCase()}</h1>
+          <h1>CÓDIGO DE SALA: {codigo?.toUpperCase()}</h1>
           <p>
             Estado:{" "}
             {sala
@@ -89,26 +115,23 @@ export default function SalaPage() {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: 12,
+                gap: 24,
                 alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <div>
-                <strong>Código:</strong> {sala.codigo}
+                <strong>Host: </strong>
+                {sala.host || "No definido"}
               </div>
               <div>
-                <strong>Host:</strong> {sala.host}
+                <strong>Jugadores: </strong>{" "}
+                {sala.jugadores.length}/{sala.maxJugadores}
               </div>
-              <div>
-                <strong>Jugadores:</strong>{" "}
-                {sala.jugadores.length}/{sala.maxJugadores ?? 2}
-              </div>
-              <div>
-                <strong>Estado:</strong>{" "}
-                {String(sala.estado).toLowerCase() === "esperando"
-                  ? "PREPARTIDA"
-                  : String(sala.estado).toUpperCase()}
-              </div>
+            </div>
+            
+            {/* Botón centrado en su propia línea */}
+            <div style={{ textAlign: "center", marginTop: "12px" }}>
               <button
                 className="btn sm secondary"
                 onClick={() => navigator.clipboard?.writeText(sala.codigo)}

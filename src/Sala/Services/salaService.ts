@@ -3,6 +3,7 @@ import type { Sala } from "../Models/salaModel";
 
 /** Normaliza la forma que venga del backend a { maxJugadores } */
 function normalizeSala(raw: any): Sala {
+  
   const max =
     raw.maxJugadores ??
     raw.MaxJugadores ??
@@ -14,12 +15,25 @@ function normalizeSala(raw: any): Sala {
     raw.maximo ??
     2; // fallback seguro
 
-  return {
+  // Normalizar el host - probar diferentes posibles nombres de campo
+  const host = 
+    raw.host ??
+    raw.Host ??
+    raw.hostName ??
+    raw.hostname ??
+    raw.creador ??
+    raw.owner ??
+    raw.propietario ??
+    "Desconocido";
+
+  const normalized = {
     ...raw,
     maxJugadores: Number(max),
     estado: String(raw.estado ?? raw.status ?? "esperando").toLowerCase(),
     jugadores: Array.isArray(raw.jugadores) ? raw.jugadores : [],
+    host: String(host),
   };
+  return normalized;
 }
 
 // Crear sala - backend: POST /sala/crear
@@ -44,4 +58,8 @@ export async function getSala(codigo: string): Promise<Sala> {
 export async function getSalas(): Promise<Sala[]> {
   const { data } = await apiAuth.get("/sala");
   return Array.isArray(data) ? data.map(normalizeSala) : [];
+}
+
+export async function exitSala(codigo: string): Promise<void> {
+  await apiAuth.post(`/sala/salir/${encodeURIComponent(codigo)}`);
 }
