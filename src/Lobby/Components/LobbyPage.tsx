@@ -8,7 +8,7 @@ import "../../Components/Style/Login-Lobby-Style.css";
 
 export default function Lobby() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, logout, user } = useAuth();
 
   const {
     salas,
@@ -71,6 +71,32 @@ export default function Lobby() {
       <div className="radar-wrap">
         <RadarBackground />
       </div>
+
+      {/* Recuadro del usuario actual - esquina superior izquierda */}
+      {user && (
+        <div
+          className="card"
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "20px",
+            width: "auto",
+            minWidth: "200px",
+            zIndex: 10,
+            background: "rgba(30, 64, 175, .60)",
+            borderColor: "rgba(59, 130, 246, .60)",
+            color: "#dbeafe",
+            padding: "12px 16px",
+          }}
+        >
+          <div style={{ fontSize: "12px", opacity: 0.8, marginBottom: "4px" }}>
+            USUARIO ACTUAL
+          </div>
+          <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+            {user.username}
+          </div>
+        </div>
+      )}
 
       {/* Panel central */}
       <div className="panel">
