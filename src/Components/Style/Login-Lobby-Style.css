@@ -1,0 +1,275 @@
+/* ===== Layout base ===== */
+.lobby {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  background: #0b1324; /* slate-950 */
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Cambio de flex-start a center para centrar verticalmente */
+  padding: 20px;
+  margin: 0;
+  color: #e2f3ff;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+}
+
+/* Reset CSS global para quitar bordes blancos */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Radar centrado con cono ===== */
+.radar-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: .6;
+}
+
+.radar {
+  position: relative;
+  width: 640px;
+  height: 640px;
+}
+
+.radar .ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, .35); /* sky-500 */
+}
+.radar .ring.r2 { inset: 10%; border-color: rgba(56, 189, 248, .2); }
+.radar .ring.r3 { inset: 20%; border-color: rgba(56, 189, 248, .2); }
+
+.radar .dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  transform: translate(-50%, -50%);
+  animation: ping 1.6s infinite;
+}
+@keyframes ping {
+  0%   { box-shadow: 0 0 0 0 rgba(56, 189, 248, .5); }
+  70%  { box-shadow: 0 0 0 18px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+/* Cono (haz) girando */
+.radar .beam {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 720px;
+  height: 720px;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  background: conic-gradient(from 0deg,
+              rgba(56,189,248,.35) 0deg,
+              rgba(56,189,248,.15) 40deg,
+              rgba(56,189,248,0) 60deg);
+  -webkit-mask-image: radial-gradient(circle at center, #000 56%, transparent 57%);
+          mask-image: radial-gradient(circle at center, #000 56%, transparent 57%);
+  filter: blur(.3px);
+  animation: radar-rotate 6s linear infinite;
+}
+@keyframes radar-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== Panel central (SIN blur ni transparencia) ===== */
+.panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  opacity: 0.95;
+  /* sin desenfoque */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  border: 1px solid rgba(12, 74, 110, .35);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
+}
+
+/* Panel para login - centrado completamente */
+.panel.login-panel {
+  max-width: 480px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ===== Header ===== */
+.header { text-align: center; }
+.header h1 {
+  margin: 0;
+  letter-spacing: .15em;
+  font-weight: 900;
+  font-size: clamp(24px, 4vw, 36px);
+}
+.header p {
+  margin-top: 6px;
+  color: rgba(226, 243, 255, .75);
+}
+
+/* ===== Acciones: dos cards lado a lado ===== */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+@media (min-width: 768px) {
+  .actions { grid-template-columns: 1fr 1fr; }
+}
+
+/* Acciones para login - centradas */
+.actions.login-actions {
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 400px;
+  margin: 28px auto 0;
+}
+
+/* ===== Card de acción ===== */
+.card {
+  background: rgba(15, 23, 42, .60);
+  border: 1px solid rgba(12, 74, 110, .40);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, .35);
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+/* Card para formularios de login */
+.card.form-card {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+.card h3 {
+  margin: 0 0 4px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .20em;
+}
+.card .sub {
+  margin: 6px 0 12px;
+  text-align: center;
+  color: rgba(226, 243, 255, .80);
+  font-size: 14px;
+}
+
+/* ===== Textfields (alineados y consistentes) ===== */
+.card input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(56, 189, 248, .25);
+  background: rgba(30, 41, 59, .75); /* slate-800 */
+  color: #e2f3ff;
+  text-align: center;
+  outline: none;
+}
+.card input::placeholder { color: rgba(226, 243, 255, .55); }
+.card input:focus {
+  border-color: rgba(56, 189, 248, .55);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, .25);
+}
+
+/* ===== Botones ===== */
+.btn {
+  display: inline-block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #000;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: transform .05s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn.primary {
+  background: rgba(2, 132, 199, .90); /* sky-600 */
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(56, 189, 248, .25);
+}
+.btn.primary:hover { box-shadow: 0 10px 22px rgba(56, 189, 248, .35); }
+
+.btn.secondary {
+  background: rgba(30, 41, 59, .90); /* slate-700 */
+  color: #e2f3ff;
+}
+.btn.secondary:hover { box-shadow: 0 8px 20px rgba(2, 6, 23, .45); }
+
+.btn.sm { width: auto; padding: 8px 12px; }
+
+/* ===== Lista de salas ===== */
+.rooms { margin-top: 28px; }
+.rooms .muted { 
+  text-align: center; 
+  color: rgba(226, 243, 255, .75); 
+  padding: 20px;
+  font-size: 16px;
+}
+.rooms ul { 
+  list-style: none; 
+  padding: 0; 
+  margin: 0; 
+  display: grid; 
+  gap: 12px; 
+}
+.room {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, .55);
+  border: 1px solid rgba(12, 74, 110, .35);
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition: border-color .2s ease;
+}
+.room:hover {
+  border-color: rgba(56, 189, 248, .45);
+}
+.room strong { font-weight: 800; }
+
+/* Estilos específicos para lobby */
+.panel .actions .btn.secondary {
+  background: rgba(251, 146, 60, .85); /* orange tint para unirse */
+}
+.panel .actions .btn.secondary:hover {
+  box-shadow: 0 10px 22px rgba(251, 146, 60, .35);
+}
